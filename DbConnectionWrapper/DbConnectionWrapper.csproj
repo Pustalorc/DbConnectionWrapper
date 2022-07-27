@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net48;net6.0;netcoreapp3.1;netstandard2.0;netstandard2.1</TargetFrameworks>
+        <LangVersion>10</LangVersion>
+        <Nullable>enable</Nullable>
+        <AssemblyName>Pustalorc.DbConnectionWrapper</AssemblyName>
+        <RootNamespace>Pustalorc.Libraries.DbConnectionWrapper</RootNamespace>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Authors>Pustalorc</Authors>
+        <PackageId>Pustalorc.DbConnectionWrapper</PackageId>
+        <Description>Library that abstractly wraps DbConnection and a few other types to reduce duplicate code when interacting with a DbConnection and executing queries.</Description>
+        <Copyright>Copyright © 2020-2022 Pustalorc</Copyright>
+        <RepositoryUrl>https://github.com/Pustalorc/DbConnectionWrapper</RepositoryUrl>
+        <RepositoryType>Github</RepositoryType>
+        <PackageTags>DbConnection Wrapper</PackageTags>
+        <PackageReleaseNotes>Migrated minimum required classes to this library/project.</PackageReleaseNotes>
+        <Company>Pustalorc</Company>
+        <Product>Pustalorc.DbConnectionWrapper</Product>
+        <PackageVersion>1.0.0</PackageVersion>
+        <AssemblyVersion>1.0.0</AssemblyVersion>
+        <FileVersion>1.0.0</FileVersion>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+
+</Project>
