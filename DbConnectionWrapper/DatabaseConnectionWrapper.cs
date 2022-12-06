@@ -3,27 +3,33 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Pustalorc.Libraries.DbConnectionWrapper.QueryAbstraction;
 using Pustalorc.Libraries.DbConnectionWrapper.ResultTableAbstraction;
 
 namespace Pustalorc.Libraries.DbConnectionWrapper;
 
 /// <summary>
-/// A base abstract wrapper for any database connection. Utilizes <see cref="DbConnection"/> classes and related to achieve this.
+///     A base abstract wrapper for any database connection. Utilizes <see cref="DbConnection" /> classes and related to
+///     achieve this.
 /// </summary>
+[UsedImplicitly]
 public abstract class DatabaseConnectionWrapper
 {
     /// <summary>
-    /// Tests the connection to see if we can correctly connect to the database from the connection created by the GetConnection implementation.
+    ///     Tests the connection to see if we can correctly connect to the database from the connection created by the
+    ///     GetConnection implementation.
     /// </summary>
     /// <returns>
-    /// Null if the connection was established successfully.
-    /// Otherwise it returns the exception that was thrown.
+    ///     Null if the connection was established successfully.
+    ///     Otherwise it returns the exception that was thrown.
     /// </returns>
     /// <remarks>
-    /// It is recommended to run this method first before running any ExecuteQuery, as this will allow you to test if the connection can be established at all.
-    /// If the connection can't be established, the exception should be formatted and logged or reused as necessary.
+    ///     It is recommended to run this method first before running any ExecuteQuery, as this will allow you to test if the
+    ///     connection can be established at all.
+    ///     If the connection can't be established, the exception should be formatted and logged or reused as necessary.
     /// </remarks>
+    [UsedImplicitly]
     public virtual Exception? TestConnection()
     {
         try
@@ -39,21 +45,24 @@ public abstract class DatabaseConnectionWrapper
     }
 
     /// <summary>
-    /// Tests the connection to see if we can correctly connect to the database from the connection created by the GetConnection implementation.
+    ///     Tests the connection to see if we can correctly connect to the database from the connection created by the
+    ///     GetConnection implementation.
     /// </summary>
     /// <returns>
-    /// Null if the connection was established successfully.
-    /// Otherwise it returns the exception that was thrown.
+    ///     Null if the connection was established successfully.
+    ///     Otherwise it returns the exception that was thrown.
     /// </returns>
     /// <remarks>
-    /// It is recommended to run this method first before running any ExecuteQuery, as this will allow you to test if the connection can be established at all.
-    /// If the connection can't be established, the exception should be formatted and logged or reused as necessary.
+    ///     It is recommended to run this method first before running any ExecuteQuery, as this will allow you to test if the
+    ///     connection can be established at all.
+    ///     If the connection can't be established, the exception should be formatted and logged or reused as necessary.
     /// </remarks>
+    [UsedImplicitly]
     public virtual async Task<Exception?> TestConnectionAsync()
     {
         try
         {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
             await using var connection = GetConnection();
 #else
             using var connection = GetConnection();
@@ -68,26 +77,31 @@ public abstract class DatabaseConnectionWrapper
     }
 
     /// <summary>
-    /// Retrieves the connection to use for query execution.
+    ///     Retrieves the connection to use for query execution.
     /// </summary>
-    /// <returns>An instance of <see cref="DbConnection"/></returns>
+    /// <returns>An instance of <see cref="DbConnection" /></returns>
     /// <remarks>
-    /// If the underlying connection code supports it, a single connection could be used.
-    /// However, since the connections get disposed after every query execution, all query execution code would have to be modified,
-    /// as well as force synchronicity to avoid issues during execution.
+    ///     If the underlying connection code supports it, a single connection could be used.
+    ///     However, since the connections get disposed after every query execution, all query execution code would have to be
+    ///     modified,
+    ///     as well as force synchronicity to avoid issues during execution.
     /// </remarks>
     protected abstract DbConnection GetConnection();
 
     // Query execution
 
     /// <summary>
-    /// Creates and executes a query with the provided information.
+    ///     Creates and executes a query with the provided information.
     /// </summary>
     /// <param name="queryString">The query string to execute.</param>
     /// <param name="type">The type of the query, by default a NonQuery</param>
     /// <param name="callback">A callback to raise after query execution.</param>
     /// <param name="parameters">The parameters to bind to the query before execution.</param>
-    /// <returns>An instance of <see cref="QueryOutput"/>, where QueryOutput.Result is the result from the underlying DbConnection Execute methods.</returns>
+    /// <returns>
+    ///     An instance of <see cref="QueryOutput" />, where QueryOutput.Result is the result from the underlying
+    ///     DbConnection Execute methods.
+    /// </returns>
+    [UsedImplicitly]
     public virtual QueryOutput ExecuteQuery(string queryString, EQueryType type = EQueryType.NonQuery,
         Action<QueryOutput, DbConnection, DbTransaction?>? callback = null, params DbParameter[] parameters)
     {
@@ -95,11 +109,18 @@ public abstract class DatabaseConnectionWrapper
     }
 
     /// <summary>
-    /// Executes a specific query.
+    ///     Executes a specific query.
     /// </summary>
     /// <param name="query">The query to execute.</param>
-    /// <returns>An instance of <see cref="QueryOutput"/>, where QueryOutput.Result is the result from the underlying DbConnection Execute methods.</returns>
-    /// <remarks>This method will always get and open a new connection. If not intended, please use ExecuteQueryWithOpenConnection instead</remarks>
+    /// <returns>
+    ///     An instance of <see cref="QueryOutput" />, where QueryOutput.Result is the result from the underlying
+    ///     DbConnection Execute methods.
+    /// </returns>
+    /// <remarks>
+    ///     This method will always get and open a new connection. If not intended, please use
+    ///     ExecuteQueryWithOpenConnection instead
+    /// </remarks>
+    [UsedImplicitly]
     public virtual QueryOutput ExecuteQuery(Query query)
     {
         using var connection = GetConnection();
@@ -109,7 +130,7 @@ public abstract class DatabaseConnectionWrapper
     }
 
     /// <summary>
-    /// Executes a query with the provided information and open connection and available transaction (if any).
+    ///     Executes a query with the provided information and open connection and available transaction (if any).
     /// </summary>
     /// <param name="connection">The open connection to the database.</param>
     /// <param name="transaction">The transaction currently in use by the connection and for the execution of this query.</param>
@@ -117,12 +138,17 @@ public abstract class DatabaseConnectionWrapper
     /// <param name="type">The type of the query, by default a NonQuery</param>
     /// <param name="callback">A callback to raise after query execution.</param>
     /// <param name="parameters">The parameters to bind to the query before execution.</param>
-    /// <returns>An instance of <see cref="QueryOutput"/>, where QueryOutput.Result is the result from the underlying DbConnection Execute methods.</returns>
+    /// <returns>
+    ///     An instance of <see cref="QueryOutput" />, where QueryOutput.Result is the result from the underlying
+    ///     DbConnection Execute methods.
+    /// </returns>
     /// <remarks>
-    /// This method constructs the query and is meant to be used as a quicker way to execute a very precise query without having to run "new Query()" every time.
-    /// The connection provided to this method MUST BE open, otherwise execution will fail.
-    /// The transaction by default can be null, but if a transaction is open, it is recommended to pass that here.
+    ///     This method constructs the query and is meant to be used as a quicker way to execute a very precise query without
+    ///     having to run "new Query()" every time.
+    ///     The connection provided to this method MUST BE open, otherwise execution will fail.
+    ///     The transaction by default can be null, but if a transaction is open, it is recommended to pass that here.
     /// </remarks>
+    [UsedImplicitly]
     public virtual QueryOutput ExecuteQueryWithOpenConnection(DbConnection connection, DbTransaction? transaction,
         string queryString, EQueryType type = EQueryType.NonQuery,
         Action<QueryOutput, DbConnection, DbTransaction?>? callback = null, params DbParameter[] parameters)
@@ -132,16 +158,20 @@ public abstract class DatabaseConnectionWrapper
     }
 
     /// <summary>
-    /// Executes a specific query.
+    ///     Executes a specific query.
     /// </summary>
     /// <param name="connection">The open connection to the database.</param>
     /// <param name="transaction">The transaction currently in use by the connection and for the execution of this query.</param>
     /// <param name="query">The query to execute.</param>
-    /// <returns>An instance of <see cref="QueryOutput"/>, where QueryOutput.Result is the result from the underlying DbConnection Execute methods.</returns>
+    /// <returns>
+    ///     An instance of <see cref="QueryOutput" />, where QueryOutput.Result is the result from the underlying
+    ///     DbConnection Execute methods.
+    /// </returns>
     /// <remarks>
-    /// The connection provided to this method MUST BE open, otherwise execution will fail.
-    /// The transaction by default can be null, but if a transaction is open, it is recommended to pass that here.
+    ///     The connection provided to this method MUST BE open, otherwise execution will fail.
+    ///     The transaction by default can be null, but if a transaction is open, it is recommended to pass that here.
     /// </remarks>
+    [UsedImplicitly]
     public virtual QueryOutput ExecuteQueryWithOpenConnection(DbConnection connection, DbTransaction? transaction,
         Query query)
     {
@@ -205,15 +235,17 @@ public abstract class DatabaseConnectionWrapper
     // Transaction execution
 
     /// <summary>
-    /// Executes a transaction with one or more queries.
+    ///     Executes a transaction with one or more queries.
     /// </summary>
     /// <param name="queries">All of the queries to execute in this transaction.</param>
     /// <returns>
-    /// A list of all the <see cref="QueryOutput"/> from each of the queries in the transaction.
+    ///     A list of all the <see cref="QueryOutput" /> from each of the queries in the transaction.
     /// </returns>
     /// <remarks>
-    /// To avoid opening a new connection where not necessary, if queries is empty, the method will return an empty result list.
+    ///     To avoid opening a new connection where not necessary, if queries is empty, the method will return an empty result
+    ///     list.
     /// </remarks>
+    [UsedImplicitly]
     public virtual List<QueryOutput> ExecuteTransaction(params Query[] queries)
     {
         if (queries.Length == 0)
@@ -226,18 +258,20 @@ public abstract class DatabaseConnectionWrapper
     }
 
     /// <summary>
-    /// Executes a transaction with one or more queries.
+    ///     Executes a transaction with one or more queries.
     /// </summary>
     /// <param name="connection">The open connection to the database.</param>
     /// <param name="queries">All of the queries to execute in this transaction.</param>
     /// <returns>
-    /// A list of all the <see cref="QueryOutput"/> from each of the queries in the transaction.
+    ///     A list of all the <see cref="QueryOutput" /> from each of the queries in the transaction.
     /// </returns>
     /// <remarks>
-    /// This method will catch and rethrow an exception. This is to force a rollback of the transaction.
-    /// The connection provided to this method MUST BE open, otherwise execution will fail.
-    /// To avoid starting a new transaction where not necessary, if queries is empty, the method will return an empty result list.
+    ///     This method will catch and rethrow an exception. This is to force a rollback of the transaction.
+    ///     The connection provided to this method MUST BE open, otherwise execution will fail.
+    ///     To avoid starting a new transaction where not necessary, if queries is empty, the method will return an empty
+    ///     result list.
     /// </remarks>
+    [UsedImplicitly]
     public virtual List<QueryOutput> ExecuteTransactionWithOpenConnection(DbConnection connection,
         params Query[] queries)
     {
@@ -269,16 +303,21 @@ public abstract class DatabaseConnectionWrapper
     // Query execution
 
     /// <summary>
-    /// Executes a query with the provided information.
+    ///     Executes a query with the provided information.
     /// </summary>
     /// <param name="queryString">The query string to execute.</param>
     /// <param name="type">The type of the query, by default a NonQuery</param>
     /// <param name="asyncCallback">An asynchronous callback to raise after query execution.</param>
     /// <param name="parameters">The parameters to bind to the query before execution.</param>
-    /// <returns>An instance of <see cref="QueryOutput"/>, where QueryOutput.Result is the result from the underlying DbConnection Execute methods.</returns>
+    /// <returns>
+    ///     An instance of <see cref="QueryOutput" />, where QueryOutput.Result is the result from the underlying
+    ///     DbConnection Execute methods.
+    /// </returns>
     /// <remarks>
-    /// This method constructs the query and is meant to be used as a quicker way to execute a very precise query without having to run "new Query()" every time.
+    ///     This method constructs the query and is meant to be used as a quicker way to execute a very precise query without
+    ///     having to run "new Query()" every time.
     /// </remarks>
+    [UsedImplicitly]
     public virtual async Task<QueryOutput> ExecuteQueryAsync(string queryString, EQueryType type = EQueryType.NonQuery,
         Func<QueryOutput, DbConnection, DbTransaction?, Task>? asyncCallback = null, params DbParameter[] parameters)
     {
@@ -286,14 +325,21 @@ public abstract class DatabaseConnectionWrapper
     }
 
     /// <summary>
-    /// Executes a specific query.
+    ///     Executes a specific query.
     /// </summary>
     /// <param name="query">The query to execute.</param>
-    /// <returns>An instance of <see cref="QueryOutput"/>, where QueryOutput.Result is the result from the underlying DbConnection Execute methods.</returns>
-    /// <remarks>This method will always get and open a new connection. If not intended, please use ExecuteQueryWithOpenConnection instead</remarks>
+    /// <returns>
+    ///     An instance of <see cref="QueryOutput" />, where QueryOutput.Result is the result from the underlying
+    ///     DbConnection Execute methods.
+    /// </returns>
+    /// <remarks>
+    ///     This method will always get and open a new connection. If not intended, please use
+    ///     ExecuteQueryWithOpenConnection instead
+    /// </remarks>
+    [UsedImplicitly]
     public virtual async Task<QueryOutput> ExecuteQueryAsync(Query query)
     {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
         await using var connection = GetConnection();
 #else
         using var connection = GetConnection();
@@ -304,7 +350,7 @@ public abstract class DatabaseConnectionWrapper
     }
 
     /// <summary>
-    /// Executes a query with the provided information and open connection and available transaction (if any).
+    ///     Executes a query with the provided information and open connection and available transaction (if any).
     /// </summary>
     /// <param name="connection">The open connection to the database.</param>
     /// <param name="transaction">The transaction currently in use by the connection and for the execution of this query.</param>
@@ -312,12 +358,17 @@ public abstract class DatabaseConnectionWrapper
     /// <param name="type">The type of the query, by default a NonQuery</param>
     /// <param name="asyncCallback">An asynchronous callback to raise after query execution.</param>
     /// <param name="parameters">The parameters to bind to the query before execution.</param>
-    /// <returns>An instance of <see cref="QueryOutput"/>, where QueryOutput.Result is the result from the underlying DbConnection Execute methods.</returns>
+    /// <returns>
+    ///     An instance of <see cref="QueryOutput" />, where QueryOutput.Result is the result from the underlying
+    ///     DbConnection Execute methods.
+    /// </returns>
     /// <remarks>
-    /// This method constructs the query and is meant to be used as a quicker way to execute a very precise query without having to run "new Query()" every time.
-    /// The connection provided to this method MUST BE open, otherwise execution will fail.
-    /// The transaction by default can be null, but if a transaction is open, it is recommended to pass that here.
+    ///     This method constructs the query and is meant to be used as a quicker way to execute a very precise query without
+    ///     having to run "new Query()" every time.
+    ///     The connection provided to this method MUST BE open, otherwise execution will fail.
+    ///     The transaction by default can be null, but if a transaction is open, it is recommended to pass that here.
     /// </remarks>
+    [UsedImplicitly]
     public virtual async Task<QueryOutput> ExecuteQueryWithOpenConnectionAsync(DbConnection connection,
         DbTransaction? transaction, string queryString, EQueryType type = EQueryType.NonQuery,
         Func<QueryOutput, DbConnection, DbTransaction?, Task>? asyncCallback = null, params DbParameter[] parameters)
@@ -327,20 +378,24 @@ public abstract class DatabaseConnectionWrapper
     }
 
     /// <summary>
-    /// Executes a specific query.
+    ///     Executes a specific query.
     /// </summary>
     /// <param name="connection">The open connection to the database.</param>
     /// <param name="transaction">The transaction currently in use by the connection and for the execution of this query.</param>
     /// <param name="query">The query to execute.</param>
-    /// <returns>An instance of <see cref="QueryOutput"/>, where QueryOutput.Result is the result from the underlying DbConnection Execute methods.</returns>
+    /// <returns>
+    ///     An instance of <see cref="QueryOutput" />, where QueryOutput.Result is the result from the underlying
+    ///     DbConnection Execute methods.
+    /// </returns>
     /// <remarks>
-    /// The connection provided to this method MUST BE open, otherwise execution will fail.
-    /// The transaction by default can be null, but if a transaction is open, it is recommended to pass that here.
+    ///     The connection provided to this method MUST BE open, otherwise execution will fail.
+    ///     The transaction by default can be null, but if a transaction is open, it is recommended to pass that here.
     /// </remarks>
+    [UsedImplicitly]
     public virtual async Task<QueryOutput> ExecuteQueryWithOpenConnectionAsync(DbConnection connection,
         DbTransaction? transaction, Query query)
     {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
         await using var command = connection.CreateCommand();
 #else
         using var command = connection.CreateCommand();
@@ -366,7 +421,7 @@ public abstract class DatabaseConnectionWrapper
             case EQueryType.Reader:
                 var readerResult = new List<Row>();
 
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
                 await using (var reader = await command.ExecuteReaderAsync())
 #else
                 using (var reader = await command.ExecuteReaderAsync())
@@ -386,7 +441,7 @@ public abstract class DatabaseConnectionWrapper
                     }
                     finally
                     {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
                         await reader.CloseAsync();
 #else
                         reader.Close();
@@ -411,18 +466,20 @@ public abstract class DatabaseConnectionWrapper
     // Transaction execution
 
     /// <summary>
-    /// Executes a transaction with one or more queries.
+    ///     Executes a transaction with one or more queries.
     /// </summary>
     /// <param name="queries">All of the queries to execute in this transaction.</param>
     /// <returns>
-    /// A list of all the <see cref="QueryOutput"/> from each of the queries in the transaction.
+    ///     A list of all the <see cref="QueryOutput" /> from each of the queries in the transaction.
     /// </returns>
     /// <remarks>
-    /// To avoid opening a new connection where not necessary, if queries is empty, the method will return an empty result list.
+    ///     To avoid opening a new connection where not necessary, if queries is empty, the method will return an empty result
+    ///     list.
     /// </remarks>
+    [UsedImplicitly]
     public virtual async Task<List<QueryOutput>> ExecuteTransactionAsync(params Query[] queries)
     {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
         await using var connection = GetConnection();
 #else
         using var connection = GetConnection();
@@ -433,22 +490,24 @@ public abstract class DatabaseConnectionWrapper
     }
 
     /// <summary>
-    /// Executes a transaction with one or more queries.
+    ///     Executes a transaction with one or more queries.
     /// </summary>
     /// <param name="connection">The open connection to the database.</param>
     /// <param name="queries">All of the queries to execute in this transaction.</param>
     /// <returns>
-    /// A list of all the <see cref="QueryOutput"/> from each of the queries in the transaction.
+    ///     A list of all the <see cref="QueryOutput" /> from each of the queries in the transaction.
     /// </returns>
     /// <remarks>
-    /// This method will catch and rethrow an exception. This is to force a rollback of the transaction.
-    /// The connection provided to this method MUST BE open, otherwise execution will fail.
-    /// To avoid starting a new transaction where not necessary, if queries is empty, the method will return an empty result list.
+    ///     This method will catch and rethrow an exception. This is to force a rollback of the transaction.
+    ///     The connection provided to this method MUST BE open, otherwise execution will fail.
+    ///     To avoid starting a new transaction where not necessary, if queries is empty, the method will return an empty
+    ///     result list.
     /// </remarks>
+    [UsedImplicitly]
     public virtual async Task<List<QueryOutput>> ExecuteTransactionWithOpenConnectionAsync(DbConnection connection,
         params Query[] queries)
     {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
         await using var transaction = await connection.BeginTransactionAsync();
 #else
         using var transaction = connection.BeginTransaction();
@@ -461,7 +520,7 @@ public abstract class DatabaseConnectionWrapper
             foreach (var query in queries)
                 output.Add(await ExecuteQueryWithOpenConnectionAsync(connection, transaction, query));
 
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
             await transaction.CommitAsync();
 #else
             transaction.Commit();
@@ -470,7 +529,7 @@ public abstract class DatabaseConnectionWrapper
         }
         catch
         {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
             await transaction.RollbackAsync();
 #else
             transaction.Rollback();
